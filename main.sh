@@ -19,30 +19,39 @@ do
 	source $thisdir/source.ini
 	if [ "$ctl" = "start" ]; then
 		find=$($sh_find)
-		now=`date +"%Y-%m-%d %H:%M:%S"`
-		echo "" $now "新的任务： $find "  >> $logfile
+		echo $find
+		exit
 
-		if [ "$find"  != "" ]
+		tmp_pre="${find%\|*}"
+
+		if [ "$tmp_pre"  = "success" ]
 		then
-			ii=1
-			while [ true ]; do
-				tmp=`echo $find | cut  -d ";"  -f $ii`
 
+			find="${find#*\|}"
 
-				if [ "$tmp" = "" ]; then
-					break;
-				elif [ "$tmp" = "$find" ]; then
-					`$tmp  >> $logfile &`
-					break;
-				else
+			now=`date +"%Y-%m-%d %H:%M:%S"`
+			echo "" $now "新的任务： $find "  >> $logfile
 
-					`$tmp  >> $logfile &`
+			if [ "$find"  != "" ]
+			then
+				ii=1
+				while [ true ]; do
+					tmp=`echo $find | cut  -d ";"  -f $ii`
 
-					((ii++))
-				fi
+					if [ "$tmp" = "" ]; then
+						break;
+					elif [ "$tmp" = "$find" ]; then
+						`$tmp  >> $logfile  2>>${logfile}.error.log &`
+						break;
+					else
 
-			done
+						`$tmp  >> $logfile  2>>${logfile}.error.log &`
 
+						((ii++))
+					fi
+
+				done
+			fi
 
 		fi
 	elif [ "$ctl" = "exit" ]; then
