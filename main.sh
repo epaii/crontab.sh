@@ -1,9 +1,22 @@
 #!/usr/bin/env bash
 
+
+#echo `ps -ef |grep crontab/main.sh | grep -v grep`;
+
+ProcNumber=`ps -ef |grep crontab/main.sh| grep -v grep |wc -l`
+
+if [ $ProcNumber -gt 2 ];then
+    echo "$ProcNumber has runing"
+    exit
+fi
+
+
+
+
 thisdir=`dirname $0`/config
 
 source $thisdir/config.ini
-
+`umask 0000`
 while [ true ]
 do
 	logdate=`date +"%Y%m%d"`
@@ -19,9 +32,6 @@ do
 	source $thisdir/source.ini
 	if [ "$ctl" = "start" ]; then
 		find=$($sh_find)
-		echo $find
-		exit
-
 		tmp_pre="${find%\|*}"
 
 		if [ "$tmp_pre"  = "success" ]
